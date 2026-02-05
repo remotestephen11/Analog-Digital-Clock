@@ -2,25 +2,865 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Red Analog & Digital Clock</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Fun Clock App (Analog + Digital + Alarm + Stopwatch + Timer)</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    body{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+      background: radial-gradient(circle at top, #5b0000, #120000);
+      color:#ffe3e3;
+    }
+    .app{
+      width:min(1100px,100%);
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:18px;
+    }
+    .card{
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,0,0,.22);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.55);
+      backdrop-filter: blur(7px);
+    }
+    .card h2{
+      font-size:13px;letter-spacing:1.2px;text-transform:uppercase;opacity:.92;margin-bottom:12px
+    }
+
+    /* LEFT: CLOCKS */
+    .clockZone{display:flex;flex-direction:column;gap:14px;align-items:center}
+    .analog{
+      width:320px;height:320px;border-radius:50%;position:relative;
+      background: radial-gradient(circle, #8b0000, #260000);
+      box-shadow: inset 0 0 28px rgba(255,0,0,.3), 0 24px 55px rgba(0,0,0,.75);
+      overflow:hidden;
+    }
+    .ring{
+      position:absolute; inset:10px; border-radius:50%;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .ticks{position:absolute; inset:18px; border-radius:50%; }
+    .tick{
+      position:absolute; top:0; left:50%;
+      width:2px; height:10px; border-radius:2px;
+      background: rgba(255,220,220,.55);
+      transform-origin: 50% 142px;
+      transform: translateX(-50%) rotate(var(--deg));
+    }
+    .tick.major{height:14px;width:3px;background: rgba(255,220,220,.75)}
+    .numbers{
+      position:absolute; inset:0; border-radius:50%;
+      display:none;
+    }
+    .num{
+      position:absolute; transform: translate(-50%,-50%);
+      font-weight:800; font-size:14px; opacity:.88;
+      color: rgba(255,230,230,.9);
+      text-shadow: 0 0 10px rgba(255,0,0,.35);
+    }
+
+    .hand{
+      position:absolute; bottom:50%; left:50%;
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(0deg);
+      border-radius: 10px;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,.35));
+    }
+    .h{height:82px;width:7px;background:#ffd0d0}
+    .m{height:118px;width:5px;background:#ff8080}
+    .s{height:138px;width:2px;background:#ff0000}
+    .center{
+      position:absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width:10px;height:10px;border-radius:50%;
+      background:#ff4d4d; box-shadow: 0 0 14px rgba(255,0,0,.75);
+      z-index:5;
+    }
+    .digital{
+      width:100%;
+      text-align:center;
+      font-weight:900;
+      letter-spacing:3px;
+      padding: 16px 14px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(43,0,0,.9), rgba(100,0,0,.9));
+      box-shadow: inset 0 0 16px rgba(255,0,0,.35), 0 12px 26px rgba(0,0,0,.7);
+      font-size: 34px;
+    }
+    .dateLine{font-size:13px;opacity:.9;text-align:center;margin-top:6px}
+
+    .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    button, select, input{
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,0,0,.35);
+      color:#ffe3e3;
+      padding:10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight:700;
+      outline:none;
+    }
+    button:hover{background: rgba(120,0,0,.55)}
+    button:active{transform: translateY(1px)}
+    input{cursor:text}
+    .pill{
+      padding:8px 10px;border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,0,0,.25);
+      font-size:12px;opacity:.92
+    }
+
+    /* RIGHT: FEATURES */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .sectionTitle{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px
+    }
+    .muted{opacity:.8;font-size:12px}
+
+    ul{list-style:none}
+    .listItem{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,0,0,.18);
+      margin-top:8px;
+    }
+    .mono{font-variant-numeric: tabular-nums}
+    .small{font-size:12px;opacity:.9}
+
+    .laps{
+      max-height: 150px;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      border:1px solid rgba(255,0,0,.3);
+      padding:2px 6px;border-radius:8px;background:rgba(0,0,0,.25);
+      font-size:12px;
+    }
+
+    /* THEMES */
+    body.theme-red{
+      background: radial-gradient(circle at top, #5b0000, #120000);
+    }
+    body.theme-neon{
+      background: radial-gradient(circle at top, #2a001c, #050008);
+    }
+    body.theme-mono{
+      background: radial-gradient(circle at top, #1b1b1b, #050505);
+    }
+    .glow-low .analog{box-shadow: inset 0 0 18px rgba(255,0,0,.20), 0 24px 55px rgba(0,0,0,.75)}
+    .glow-med .analog{box-shadow: inset 0 0 28px rgba(255,0,0,.35), 0 24px 55px rgba(0,0,0,.75)}
+    .glow-high .analog{box-shadow: inset 0 0 40px rgba(255,0,0,.55), 0 24px 55px rgba(0,0,0,.75)}
+    .glow-high .digital{box-shadow: inset 0 0 22px rgba(255,0,0,.55), 0 12px 26px rgba(0,0,0,.7)}
+
+    @media(max-width:980px){
+      .app{grid-template-columns: 1fr; }
+      .grid{grid-template-columns: 1fr;}
+      .analog{width:300px;height:300px}
+      .tick{transform-origin: 50% 132px;}
+    }
+  </style>
 </head>
-<body>
+<body class="theme-red glow-med">
+  <main class="app">
 
-  <div class="clock-wrapper">
+    <!-- LEFT: CLOCKS -->
+    <section class="card">
+      <h2>Clock Dashboard</h2>
 
-    <!-- Analog Clock -->
-    <div class="analog-clock">
-      <div class="hand hour" id="hour-hand"></div>
-      <div class="hand minute" id="minute-hand"></div>
-      <div class="hand second" id="second-hand"></div>
-    </div>
+      <div class="clockZone">
+        <div class="analog" aria-label="Analog clock face">
+          <div class="ring"></div>
+          <div class="ticks" id="ticks"></div>
+          <div class="numbers" id="numbers"></div>
 
-    <!-- Digital Clock -->
-    <div class="digital-clock" id="digital-clock"></div>
+          <div class="hand h" id="h"></div>
+          <div class="hand m" id="m"></div>
+          <div class="hand s" id="s"></div>
+          <div class="center"></div>
+        </div>
 
-  </div>
+        <div class="digital mono" id="digital">--:--:--</div>
+        <div class="dateLine" id="dateLine">---</div>
 
-  <script src="script.js"></script>
+        <div class="row">
+          <div class="pill" id="runState">Running</div>
+          <div class="pill mono" id="tzState">TZ Offset: 0</div>
+          <div class="pill mono" id="fmtState">24H</div>
+        </div>
+
+        <div class="row">
+          <button id="pause">Pause</button>
+          <button id="resume">Resume</button>
+          <button id="tzPlus">TZ +1</button>
+          <button id="tzMinus">TZ -1</button>
+        </div>
+
+        <div class="row">
+          <button id="toggleSeconds">Seconds: ON</button>
+          <button id="toggleDate">Date: ON</button>
+          <button id="toggleTicks">Ticks: ON</button>
+          <button id="toggleNumbers">Numbers: OFF</button>
+        </div>
+
+        <div class="row">
+          <button id="toggleFormat">Toggle 12/24</button>
+
+          <select id="themeSelect">
+            <option value="theme-red">Theme: Red</option>
+            <option value="theme-neon">Theme: Neon</option>
+            <option value="theme-mono">Theme: Mono</option>
+          </select>
+
+          <select id="glowSelect">
+            <option value="glow-low">Glow: Low</option>
+            <option value="glow-med" selected>Glow: Med</option>
+            <option value="glow-high">Glow: High</option>
+          </select>
+        </div>
+
+        <div class="muted">
+          Shortcuts: <span class="kbd">Space</span> Pause/Resume,
+          <span class="kbd">A</span> Add alarm,
+          <span class="kbd">S</span> Stopwatch start/stop,
+          <span class="kbd">T</span> Timer start/stop
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: FEATURES -->
+    <section class="card">
+      <h2>Features</h2>
+
+      <div class="grid">
+
+        <!-- ALARMS -->
+        <div class="card" style="padding:14px;box-shadow:none;">
+          <div class="sectionTitle">
+            <strong>Alarms</strong>
+            <span class="muted">Multiple alarms</span>
+          </div>
+
+          <div class="row" style="justify-content:flex-start">
+            <input id="alarmTime" type="time" step="60">
+            <button id="addAlarm">Add</button>
+          </div>
+
+          <ul id="alarmList"></ul>
+
+          <div class="muted" style="margin-top:10px">
+            When an alarm triggers, you’ll hear a beep (browser audio).
+          </div>
+        </div>
+
+        <!-- STOPWATCH -->
+        <div class="card" style="padding:14px;box-shadow:none;">
+          <div class="sectionTitle">
+            <strong>Stopwatch</strong>
+            <span class="muted">Laps supported</span>
+          </div>
+
+          <div class="digital mono" style="font-size:26px;padding:12px" id="swDisplay">00:00.000</div>
+
+          <div class="row" style="justify-content:flex-start">
+            <button id="swStartStop">Start</button>
+            <button id="swLap">Lap</button>
+            <button id="swReset">Reset</button>
+          </div>
+
+          <div class="laps" id="lapList"></div>
+        </div>
+
+        <!-- TIMER -->
+        <div class="card" style="padding:14px;box-shadow:none;">
+          <div class="sectionTitle">
+            <strong>Countdown Timer</strong>
+            <span class="muted">Minutes/Seconds</span>
+          </div>
+
+          <div class="row" style="justify-content:flex-start">
+            <input id="tMin" type="number" min="0" max="999" placeholder="Min" style="width:90px">
+            <input id="tSec" type="number" min="0" max="59" placeholder="Sec" style="width:90px">
+          </div>
+
+          <div class="digital mono" style="font-size:26px;padding:12px" id="timerDisplay">00:00</div>
+
+          <div class="row" style="justify-content:flex-start">
+            <button id="timerStartStop">Start</button>
+            <button id="timerReset">Reset</button>
+          </div>
+
+          <div class="muted" style="margin-top:10px">
+            Timer end triggers a stronger beep sequence.
+          </div>
+        </div>
+
+        <!-- QUICK SETTINGS -->
+        <div class="card" style="padding:14px;box-shadow:none;">
+          <div class="sectionTitle">
+            <strong>Quick Controls</strong>
+            <span class="muted">Convenience</span>
+          </div>
+
+          <div class="listItem">
+            <div>
+              <div class="small">Clock Engine</div>
+              <div class="mono" id="engineInfo">RAF Sweep</div>
+            </div>
+            <button id="hardReset" class="secondary">Hard Reset</button>
+          </div>
+
+          <div class="listItem">
+            <div>
+              <div class="small">Timezone Offset</div>
+              <div class="mono" id="tzInfo">0</div>
+            </div>
+            <button id="tzZero" class="secondary">Set TZ 0</button>
+          </div>
+
+          <div class="listItem">
+            <div>
+              <div class="small">Sound</div>
+              <div class="mono" id="soundInfo">Enabled</div>
+            </div>
+            <button id="toggleSound" class="secondary">Mute</button>
+          </div>
+
+          <div class="muted" style="margin-top:10px">
+            “Hard Reset” clears alarms, laps, timer and returns defaults.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================
+    // STATE (single source)
+    // =========================
+    const state = {
+      running: true,
+      tzOffset: 0,
+      showSeconds: true,
+      showDate: true,
+      showTicks: true,
+      showNumbers: false,
+      is24: true,
+      soundEnabled: true,
+
+      // alarms
+      alarms: [], // { id, hhmm, enabled }
+
+      // stopwatch
+      swRunning: false,
+      swStartTs: 0,
+      swElapsedMs: 0,
+      swLaps: [],
+
+      // timer
+      timerRunning: false,
+      timerRemainingMs: 0,
+      timerEndTs: 0
+    };
+
+    // =========================
+    // DOM
+    // =========================
+    const dom = {
+      ticks: document.getElementById("ticks"),
+      numbers: document.getElementById("numbers"),
+      h: document.getElementById("h"),
+      m: document.getElementById("m"),
+      s: document.getElementById("s"),
+      digital: document.getElementById("digital"),
+      dateLine: document.getElementById("dateLine"),
+      runState: document.getElementById("runState"),
+      tzState: document.getElementById("tzState"),
+      fmtState: document.getElementById("fmtState"),
+
+      pause: document.getElementById("pause"),
+      resume: document.getElementById("resume"),
+      tzPlus: document.getElementById("tzPlus"),
+      tzMinus: document.getElementById("tzMinus"),
+      toggleSeconds: document.getElementById("toggleSeconds"),
+      toggleDate: document.getElementById("toggleDate"),
+      toggleTicks: document.getElementById("toggleTicks"),
+      toggleNumbers: document.getElementById("toggleNumbers"),
+      toggleFormat: document.getElementById("toggleFormat"),
+
+      themeSelect: document.getElementById("themeSelect"),
+      glowSelect: document.getElementById("glowSelect"),
+
+      alarmTime: document.getElementById("alarmTime"),
+      addAlarm: document.getElementById("addAlarm"),
+      alarmList: document.getElementById("alarmList"),
+
+      swDisplay: document.getElementById("swDisplay"),
+      swStartStop: document.getElementById("swStartStop"),
+      swLap: document.getElementById("swLap"),
+      swReset: document.getElementById("swReset"),
+      lapList: document.getElementById("lapList"),
+
+      tMin: document.getElementById("tMin"),
+      tSec: document.getElementById("tSec"),
+      timerDisplay: document.getElementById("timerDisplay"),
+      timerStartStop: document.getElementById("timerStartStop"),
+      timerReset: document.getElementById("timerReset"),
+
+      hardReset: document.getElementById("hardReset"),
+      tzZero: document.getElementById("tzZero"),
+      toggleSound: document.getElementById("toggleSound"),
+      tzInfo: document.getElementById("tzInfo"),
+      soundInfo: document.getElementById("soundInfo"),
+      engineInfo: document.getElementById("engineInfo")
+    };
+
+    // =========================
+    // Utilities
+    // =========================
+    const pad2 = n => String(n).padStart(2, "0");
+
+    function adjustedNow(){
+      const d = new Date();
+      d.setHours(d.getHours() + state.tzOffset);
+      return d;
+    }
+
+    // =========================
+    // Build Analog Face
+    // =========================
+    function buildTicks(){
+      dom.ticks.innerHTML = "";
+      for(let i=0;i<60;i++){
+        const el = document.createElement("div");
+        el.className = "tick" + (i % 5 === 0 ? " major":"");
+        el.style.setProperty("--deg", `${i*6}deg`);
+        dom.ticks.appendChild(el);
+      }
+    }
+
+    function buildNumbers(){
+      dom.numbers.innerHTML = "";
+      // place 1..12 around circle
+      const center = 160; // for 320
+      const radius = 125;
+      for(let n=1;n<=12;n++){
+        const angle = (n * 30 - 90) * Math.PI/180;
+        const x = center + radius * Math.cos(angle);
+        const y = center + radius * Math.sin(angle);
+        const el = document.createElement("div");
+        el.className = "num";
+        el.textContent = n;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        dom.numbers.appendChild(el);
+      }
+    }
+
+    // =========================
+    // Audio (beep)
+    // =========================
+    let audioCtx = null;
+    function beep(duration=160, freq=880, gain=0.08){
+      if(!state.soundEnabled) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.value = gain;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start();
+        setTimeout(()=>{o.stop();}, duration);
+      }catch(e){
+        // if blocked, ignore silently
+      }
+    }
+
+    function beepSequence(){
+      // stronger sequence
+      beep(180, 880, 0.10);
+      setTimeout(()=>beep(180, 660, 0.10), 220);
+      setTimeout(()=>beep(220, 990, 0.12), 460);
+    }
+
+    // =========================
+    // Render: Clock
+    // =========================
+    function renderAnalog(time){
+      const ms = time.getMilliseconds();
+      const sec = time.getSeconds() + ms/1000;
+      const min = time.getMinutes() + sec/60;
+      const hr  = (time.getHours()%12) + min/60;
+
+      dom.h.style.transform = `translateX(-50%) rotate(${hr*30}deg)`;
+      dom.m.style.transform = `translateX(-50%) rotate(${min*6}deg)`;
+      dom.s.style.transform = `translateX(-50%) rotate(${sec*6}deg)`;
+    }
+
+    function renderDigital(time){
+      let h = time.getHours();
+      const m = time.getMinutes();
+      const s = time.getSeconds();
+
+      let suffix = "";
+      if(!state.is24){
+        suffix = h >= 12 ? " PM" : " AM";
+        h = h % 12 || 12;
+      }
+
+      const secPart = state.showSeconds ? `:${pad2(s)}` : "";
+      dom.digital.textContent = `${pad2(h)}:${pad2(m)}${secPart}${suffix}`;
+
+      dom.dateLine.style.display = state.showDate ? "block" : "none";
+      if(state.showDate){
+        dom.dateLine.textContent = time.toLocaleDateString(undefined, {
+          weekday:"long", year:"numeric", month:"long", day:"numeric"
+        });
+      }
+    }
+
+    function renderStatus(){
+      dom.runState.textContent = state.running ? "Running" : "Paused";
+      dom.tzState.textContent = `TZ Offset: ${state.tzOffset}`;
+      dom.fmtState.textContent = state.is24 ? "24H" : "12H";
+      dom.toggleSeconds.textContent = `Seconds: ${state.showSeconds ? "ON":"OFF"}`;
+      dom.toggleDate.textContent = `Date: ${state.showDate ? "ON":"OFF"}`;
+      dom.toggleTicks.textContent = `Ticks: ${state.showTicks ? "ON":"OFF"}`;
+      dom.toggleNumbers.textContent = `Numbers: ${state.showNumbers ? "ON":"OFF"}`;
+      dom.tzInfo.textContent = String(state.tzOffset);
+      dom.soundInfo.textContent = state.soundEnabled ? "Enabled" : "Muted";
+
+      dom.ticks.style.display = state.showTicks ? "block" : "none";
+      dom.numbers.style.display = state.showNumbers ? "block" : "none";
+    }
+
+    // =========================
+    // Alarms
+    // =========================
+    function addAlarm(hhmm){
+      const id = crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+      state.alarms.push({ id, hhmm, enabled:true });
+      renderAlarms();
+    }
+
+    function removeAlarm(id){
+      state.alarms = state.alarms.filter(a => a.id !== id);
+      renderAlarms();
+    }
+
+    function toggleAlarm(id){
+      const a = state.alarms.find(x=>x.id===id);
+      if(!a) return;
+      a.enabled = !a.enabled;
+      renderAlarms();
+    }
+
+    function renderAlarms(){
+      dom.alarmList.innerHTML = "";
+      if(state.alarms.length === 0){
+        const li = document.createElement("li");
+        li.className = "listItem";
+        li.innerHTML = `<span class="small">No alarms set.</span><span class="muted">Add one above</span>`;
+        dom.alarmList.appendChild(li);
+        return;
+      }
+
+      for(const a of state.alarms){
+        const li = document.createElement("li");
+        li.className = "listItem";
+        li.innerHTML = `
+          <div>
+            <div class="mono" style="font-weight:900">${a.hhmm}</div>
+            <div class="small">${a.enabled ? "Enabled" : "Disabled"}</div>
+          </div>
+          <div class="row" style="gap:6px">
+            <button data-act="toggle" data-id="${a.id}" class="secondary">${a.enabled ? "Disable":"Enable"}</button>
+            <button data-act="del" data-id="${a.id}">Delete</button>
+          </div>
+        `;
+        dom.alarmList.appendChild(li);
+      }
+    }
+
+    function checkAlarms(time){
+      // Check once per second: match HH:MM and seconds==0
+      const hhmm = `${pad2(time.getHours())}:${pad2(time.getMinutes())}`;
+      if(time.getSeconds() !== 0) return;
+
+      for(const a of state.alarms){
+        if(a.enabled && a.hhmm === hhmm){
+          beepSequence();
+        }
+      }
+    }
+
+    // =========================
+    // Stopwatch
+    // =========================
+    function formatStopwatch(ms){
+      const total = Math.max(0, ms);
+      const minutes = Math.floor(total/60000);
+      const seconds = Math.floor((total%60000)/1000);
+      const milli = Math.floor(total%1000);
+      return `${pad2(minutes)}:${pad2(seconds)}.${String(milli).padStart(3,"0")}`;
+    }
+
+    function swStartStop(){
+      if(!state.swRunning){
+        state.swRunning = true;
+        state.swStartTs = performance.now();
+        dom.swStartStop.textContent = "Pause";
+      }else{
+        state.swRunning = false;
+        state.swElapsedMs += performance.now() - state.swStartTs;
+        dom.swStartStop.textContent = "Start";
+      }
+    }
+
+    function swReset(){
+      state.swRunning = false;
+      state.swStartTs = 0;
+      state.swElapsedMs = 0;
+      state.swLaps = [];
+      dom.swStartStop.textContent = "Start";
+      renderLaps();
+      dom.swDisplay.textContent = "00:00.000";
+    }
+
+    function swLap(){
+      const elapsed = getStopwatchElapsed();
+      state.swLaps.unshift(elapsed);
+      renderLaps();
+      beep(80, 1200, 0.06);
+    }
+
+    function getStopwatchElapsed(){
+      if(!state.swRunning) return state.swElapsedMs;
+      return state.swElapsedMs + (performance.now() - state.swStartTs);
+    }
+
+    function renderLaps(){
+      dom.lapList.innerHTML = "";
+      if(state.swLaps.length === 0){
+        dom.lapList.innerHTML = `<div class="muted">No laps yet.</div>`;
+        return;
+      }
+      state.swLaps.slice(0,20).forEach((ms, idx)=>{
+        const row = document.createElement("div");
+        row.className = "listItem";
+        row.innerHTML = `
+          <div class="small">Lap ${state.swLaps.length - idx}</div>
+          <div class="mono" style="font-weight:900">${formatStopwatch(ms)}</div>
+        `;
+        dom.lapList.appendChild(row);
+      });
+    }
+
+    // =========================
+    // Timer
+    // =========================
+    function formatTimer(ms){
+      const total = Math.max(0, Math.ceil(ms/1000));
+      const m = Math.floor(total/60);
+      const s = total%60;
+      return `${pad2(m)}:${pad2(s)}`;
+    }
+
+    function timerStartStop(){
+      if(!state.timerRunning){
+        // if starting fresh, build from inputs if remaining is 0
+        if(state.timerRemainingMs <= 0){
+          const mins = Number(dom.tMin.value || 0);
+          const secs = Number(dom.tSec.value || 0);
+          const totalMs = (mins*60 + secs)*1000;
+          state.timerRemainingMs = totalMs;
+        }
+        if(state.timerRemainingMs <= 0) return;
+
+        state.timerRunning = true;
+        state.timerEndTs = performance.now() + state.timerRemainingMs;
+        dom.timerStartStop.textContent = "Pause";
+      }else{
+        state.timerRunning = false;
+        state.timerRemainingMs = Math.max(0, state.timerEndTs - performance.now());
+        dom.timerStartStop.textContent = "Start";
+      }
+    }
+
+    function timerReset(){
+      state.timerRunning = false;
+      state.timerRemainingMs = 0;
+      state.timerEndTs = 0;
+      dom.timerStartStop.textContent = "Start";
+      dom.timerDisplay.textContent = "00:00";
+    }
+
+    function tickTimer(){
+      if(!state.timerRunning) return;
+      state.timerRemainingMs = Math.max(0, state.timerEndTs - performance.now());
+      if(state.timerRemainingMs <= 0){
+        state.timerRunning = false;
+        dom.timerStartStop.textContent = "Start";
+        beepSequence();
+      }
+    }
+
+    // =========================
+    // Main Loop (RAF)
+    // =========================
+    let lastSecond = -1;
+    function loop(){
+      const time = adjustedNow();
+
+      if(state.running){
+        renderAnalog(time);
+        renderDigital(time);
+
+        // alarm check once per second
+        if(time.getSeconds() !== lastSecond){
+          lastSecond = time.getSeconds();
+          checkAlarms(time);
+        }
+      }
+
+      // stopwatch
+      const swElapsed = getStopwatchElapsed();
+      dom.swDisplay.textContent = formatStopwatch(swElapsed);
+
+      // timer
+      tickTimer();
+      dom.timerDisplay.textContent = formatTimer(state.timerRemainingMs);
+
+      renderStatus();
+      requestAnimationFrame(loop);
+    }
+
+    // =========================
+    // Events
+    // =========================
+    dom.pause.onclick = ()=> state.running = false;
+    dom.resume.onclick = ()=> state.running = true;
+
+    dom.tzPlus.onclick = ()=> state.tzOffset++;
+    dom.tzMinus.onclick = ()=> state.tzOffset--;
+
+    dom.toggleSeconds.onclick = ()=> state.showSeconds = !state.showSeconds;
+    dom.toggleDate.onclick = ()=> state.showDate = !state.showDate;
+    dom.toggleTicks.onclick = ()=> state.showTicks = !state.showTicks;
+    dom.toggleNumbers.onclick = ()=> state.showNumbers = !state.showNumbers;
+    dom.toggleFormat.onclick = ()=> state.is24 = !state.is24;
+
+    dom.themeSelect.onchange = ()=>{
+      document.body.classList.remove("theme-red","theme-neon","theme-mono");
+      document.body.classList.add(dom.themeSelect.value);
+    };
+    dom.glowSelect.onchange = ()=>{
+      document.body.classList.remove("glow-low","glow-med","glow-high");
+      document.body.classList.add(dom.glowSelect.value);
+    };
+
+    dom.addAlarm.onclick = ()=>{
+      const val = dom.alarmTime.value;
+      if(!val) return;
+      addAlarm(val);
+      beep(90, 1000, 0.07);
+    };
+
+    dom.alarmList.addEventListener("click",(e)=>{
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      if(act === "del") removeAlarm(id);
+      if(act === "toggle") toggleAlarm(id);
+    });
+
+    dom.swStartStop.onclick = swStartStop;
+    dom.swLap.onclick = swLap;
+    dom.swReset.onclick = swReset;
+
+    dom.timerStartStop.onclick = timerStartStop;
+    dom.timerReset.onclick = timerReset;
+
+    dom.hardReset.onclick = ()=>{
+      // reset everything except theme selection (UI preference stays)
+      state.running = true;
+      state.tzOffset = 0;
+      state.showSeconds = true;
+      state.showDate = true;
+      state.showTicks = true;
+      state.showNumbers = false;
+      state.is24 = true;
+      state.soundEnabled = true;
+
+      state.alarms = [];
+      renderAlarms();
+
+      swReset();
+      timerReset();
+
+      dom.tMin.value = "";
+      dom.tSec.value = "";
+
+      beepSequence();
+    };
+
+    dom.tzZero.onclick = ()=> state.tzOffset = 0;
+
+    dom.toggleSound.onclick = ()=>{
+      state.soundEnabled = !state.soundEnabled;
+      dom.toggleSound.textContent = state.soundEnabled ? "Mute" : "Unmute";
+      if(state.soundEnabled) beep(80, 900, 0.07);
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown",(e)=>{
+      if(e.repeat) return;
+      if(e.code === "Space"){
+        e.preventDefault();
+        state.running = !state.running;
+        beep(60, 700, 0.06);
+      }
+      if(e.key.toLowerCase() === "a"){
+        // quick alarm: next minute
+        const t = adjustedNow();
+        t.setMinutes(t.getMinutes()+1);
+        const hhmm = `${pad2(t.getHours())}:${pad2(t.getMinutes())}`;
+        addAlarm(hhmm);
+        beep(90, 1100, 0.07);
+      }
+      if(e.key.toLowerCase() === "s"){
+        swStartStop();
+        beep(60, 900, 0.06);
+      }
+      if(e.key.toLowerCase() === "t"){
+        timerStartStop();
+        beep(60, 820, 0.06);
+      }
+    });
+
+    // =========================
+    // Boot
+    // =========================
+    buildTicks();
+    buildNumbers();
+    renderAlarms();
+    renderLaps();
+    loop();
+  </script>
 </body>
 </html>
