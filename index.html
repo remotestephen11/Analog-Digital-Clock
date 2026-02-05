@@ -1,40 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hybrid Analog–Digital Clock</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Hybrid Analog Digital Clock</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <main class="container">
-    <h1>Hybrid Clock</h1>
-    <p class="subtitle">Analog elegance • Digital precision</p>
-
-    <div class="clock">
-      <!-- Numbers -->
-      <div class="numbers">
-        <span style="--n:1">1</span><span style="--n:2">2</span><span style="--n:3">3</span>
-        <span style="--n:4">4</span><span style="--n:5">5</span><span style="--n:6">6</span>
-        <span style="--n:7">7</span><span style="--n:8">8</span><span style="--n:9">9</span>
-        <span style="--n:10">10</span><span style="--n:11">11</span><span style="--n:12">12</span>
-      </div>
-
-      <!-- Hands -->
-      <div class="hand hour" id="hour"></div>
-      <div class="hand minute" id="minute"></div>
-      <div class="hand second" id="second"></div>
-
-      <!-- DIGITAL DISPLAY (embedded) -->
-      <div class="digital">
-        <div id="digital-time">--:--</div>
-        <div id="ampm">--</div>
-      </div>
-
-      <div class="center-dot"></div>
+  <div class="clock">
+    <!-- Numbers -->
+    <div class="numbers">
+      <span style="--i:1">1</span><span style="--i:2">2</span><span style="--i:3">3</span>
+      <span style="--i:4">4</span><span style="--i:5">5</span><span style="--i:6">6</span>
+      <span style="--i:7">7</span><span style="--i:8">8</span><span style="--i:9">9</span>
+      <span style="--i:10">10</span><span style="--i:11">11</span><span style="--i:12">12</span>
     </div>
-  </main>
+
+    <!-- Hands -->
+    <div class="hand hour" id="hour"></div>
+    <div class="hand minute" id="minute"></div>
+    <div class="hand second" id="second"></div>
+
+    <!-- Digital embedded -->
+    <div class="digital">
+      <div id="time">00:00</div>
+      <div id="ampm">AM</div>
+    </div>
+
+    <!-- Center dot -->
+    <div class="center"></div>
+  </div>
 
   <script src="script.js"></script>
 </body>
