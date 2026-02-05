@@ -2,8 +2,8 @@ const hourHand = document.getElementById("hour");
 const minuteHand = document.getElementById("minute");
 const secondHand = document.getElementById("second");
 
-const digitalTime = document.getElementById("digital-time");
-const ampm = document.getElementById("ampm");
+const timeDisplay = document.getElementById("time");
+const ampmDisplay = document.getElementById("ampm");
 
 function updateClock() {
   const now = new Date();
@@ -12,7 +12,7 @@ function updateClock() {
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
 
-  // Analog
+  // Analog rotation
   const hourDeg = (hours % 12) * 30 + minutes * 0.5;
   const minuteDeg = minutes * 6;
   const secondDeg = seconds * 6;
@@ -21,13 +21,13 @@ function updateClock() {
   minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
   secondHand.style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
 
-  // Digital
+  // Digital display
   const displayHour = hours % 12 || 12;
-  digitalTime.textContent =
+  timeDisplay.textContent =
     `${String(displayHour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 
-  ampm.textContent = hours >= 12 ? "PM" : "AM";
+  ampmDisplay.textContent = hours >= 12 ? "PM" : "AM";
 }
 
 setInterval(updateClock, 1000);
-updateClock(); 
+updateClock();
