@@ -5,7 +5,7 @@ function updateClock() {
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
 
-  // Analog calculations
+  // Analog rotation
   const hourDeg = (hours % 12) * 30 + minutes * 0.5;
   const minuteDeg = minutes * 6;
   const secondDeg = seconds * 6;
@@ -19,15 +19,14 @@ function updateClock() {
   document.getElementById("second-hand").style.transform =
     `translateX(-50%) rotate(${secondDeg}deg)`;
 
-  // Digital format
-  const paddedHours = String(hours).padStart(2, "0");
-  const paddedMinutes = String(minutes).padStart(2, "0");
-  const paddedSeconds = String(seconds).padStart(2, "0");
+  // Digital time
+  const h = String(hours).padStart(2, "0");
+  const m = String(minutes).padStart(2, "0");
+  const s = String(seconds).padStart(2, "0");
 
   document.getElementById("digital-clock").textContent =
-    `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    `${h}:${m}:${s}`;
 }
 
-// Run immediately and every second
 updateClock();
 setInterval(updateClock, 1000);
