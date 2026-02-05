@@ -1,10 +1,3 @@
-const hourHand = document.getElementById("hour");
-const minuteHand = document.getElementById("minute");
-const secondHand = document.getElementById("second");
-
-const timeDisplay = document.getElementById("time");
-const ampmDisplay = document.getElementById("ampm");
-
 function updateClock() {
   const now = new Date();
 
@@ -12,22 +5,29 @@ function updateClock() {
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
 
-  // Analog rotation
+  // Analog calculations
   const hourDeg = (hours % 12) * 30 + minutes * 0.5;
   const minuteDeg = minutes * 6;
   const secondDeg = seconds * 6;
 
-  hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
-  minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
-  secondHand.style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+  document.getElementById("hour-hand").style.transform =
+    `translateX(-50%) rotate(${hourDeg}deg)`;
 
-  // Digital display
-  const displayHour = hours % 12 || 12;
-  timeDisplay.textContent =
-    `${String(displayHour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  document.getElementById("minute-hand").style.transform =
+    `translateX(-50%) rotate(${minuteDeg}deg)`;
 
-  ampmDisplay.textContent = hours >= 12 ? "PM" : "AM";
+  document.getElementById("second-hand").style.transform =
+    `translateX(-50%) rotate(${secondDeg}deg)`;
+
+  // Digital format
+  const paddedHours = String(hours).padStart(2, "0");
+  const paddedMinutes = String(minutes).padStart(2, "0");
+  const paddedSeconds = String(seconds).padStart(2, "0");
+
+  document.getElementById("digital-clock").textContent =
+    `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
 }
 
-setInterval(updateClock, 1000);
+// Run immediately and every second
 updateClock();
+setInterval(updateClock, 1000);
