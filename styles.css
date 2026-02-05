@@ -4,37 +4,24 @@
 }
 
 body {
-  margin: 0;
   height: 100vh;
-  background: radial-gradient(circle at top, #1b2b4f, #020617);
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #eaf2ff;
+  background: radial-gradient(circle at top, #1e2a78, #050818);
+  color: white;
 }
 
-.container {
-  text-align: center;
-}
-
-h1 {
-  margin-bottom: 4px;
-}
-
-.subtitle {
-  color: #9fb3ff;
-  margin-bottom: 30px;
-  font-size: 14px;
-}
-
+/* Clock body */
 .clock {
   position: relative;
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, #0b1538, #050a1f);
-  border: 6px solid rgba(255,255,255,0.1);
-  box-shadow: 0 0 40px rgba(124,92,255,0.35);
+  background: radial-gradient(circle, #0c1436, #050818);
+  border: 6px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 40px rgba(0, 150, 255, 0.4);
 }
 
 /* Numbers */
@@ -44,9 +31,9 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  transform: rotate(calc(var(--n) * 30deg));
-  color: #cdd9ff;
+  transform: rotate(calc(var(--i) * 30deg));
   font-weight: 600;
+  color: #cfd9ff;
 }
 
 .numbers span::after {
@@ -60,13 +47,13 @@ h1 {
   bottom: 50%;
   transform-origin: bottom;
   transform: translateX(-50%) rotate(0deg);
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .hour {
   height: 80px;
   width: 8px;
-  background: #7c5cff;
+  background: #7c8cff;
 }
 
 .minute {
@@ -79,26 +66,26 @@ h1 {
   height: 130px;
   width: 2px;
   background: #28ffb0;
-  box-shadow: 0 0 12px #28ffb0;
+  box-shadow: 0 0 10px #28ffb0;
 }
 
-/* Digital embedded */
+/* Digital display */
 .digital {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.35);
-  border-radius: 12px;
+  background: rgba(0,0,0,0.4);
   padding: 10px 16px;
+  border-radius: 10px;
   text-align: center;
-  box-shadow: inset 0 0 20px rgba(0,212,255,0.25);
+  box-shadow: inset 0 0 15px rgba(0,212,255,0.3);
 }
 
-#digital-time {
+#time {
   font-size: 28px;
-  font-family: monospace;
   letter-spacing: 2px;
+  font-family: monospace;
 }
 
 #ampm {
@@ -107,14 +94,14 @@ h1 {
 }
 
 /* Center pin */
-.center-dot {
+.center {
   position: absolute;
   width: 14px;
   height: 14px;
-  background: #fff;
+  background: white;
   border-radius: 50%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 15px #00d4ff;
-}
+  box-shadow: 0 0 12px #00d4ff;
+} 
