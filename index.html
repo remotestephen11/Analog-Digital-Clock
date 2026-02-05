@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analog + Digital Clock</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="bg">
+    <div class="noise"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <main class="wrap">
+    <header class="top">
+      <h1>Dual Clock</h1>
+      <p>Analog + Digital on one page • Vanilla CSS + JS</p>
+    </header>
+
+    <section class="grid">
+      <!-- ANALOG -->
+      <article class="card">
+        <div class="card-head">
+          <h2>Analog</h2>
+          <button id="toggleTick" class="chip" type="button" aria-pressed="false">
+            Smooth Hands: ON
+          </button>
+        </div>
+
+        <div class="analog-shell" aria-label="Analog clock">
+          <div class="clock" id="clock">
+            <!-- minute marks -->
+            <div class="marks" aria-hidden="true"></div>
+
+            <!-- numbers -->
+            <div class="nums" aria-hidden="true">
+              <span style="--i:1">1</span><span style="--i:2">2</span><span style="--i:3">3</span>
+              <span style="--i:4">4</span><span style="--i:5">5</span><span style="--i:6">6</span>
+              <span style="--i:7">7</span><span style="--i:8">8</span><span style="--i:9">9</span>
+              <span style="--i:10">10</span><span style="--i:11">11</span><span style="--i:12">12</span>
+            </div>
+
+            <!-- hands -->
+            <div class="hand hour" id="hourHand"></div>
+            <div class="hand minute" id="minuteHand"></div>
+            <div class="hand second" id="secondHand"></div>
+
+            <!-- center pin -->
+            <div class="pin"></div>
+
+            <!-- glow ring -->
+            <div class="ring" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="hint">
+          Tip: Click “Smooth Hands” to switch between smooth sweep and ticking seconds.
+        </div>
+      </article>
+
+      <!-- DIGITAL -->
+      <article class="card">
+        <div class="card-head">
+          <h2>Digital</h2>
+          <div class="chips">
+            <button id="toggle24" class="chip" type="button" aria-pressed="false">24h: OFF</button>
+            <button id="toggleSeconds" class="chip" type="button" aria-pressed="true">Seconds: ON</button>
+          </div>
+        </div>
+
+        <div class="digital">
+          <div class="time" id="digitalTime">--:--:--</div>
+          <div class="meta">
+            <span id="digitalDate">---</span>
+            <span class="dot">•</span>
+            <span id="digitalZone">---</span>
+          </div>
+          <div class="status">
+            <span class="pulse"></span>
+            <span id="statusText">Live</span>
+          </div>
+        </div>
+
+        <div class="fun-row">
+          <button id="party" class="cta" type="button">Party Mode 🎉</button>
+          <button id="stopParty" class="cta ghost" type="button">Calm Mode 😌</button>
+        </div>
+
+        <div class="hint">
+          Party Mode adds extra glow + playful motion. Calm Mode brings it back.
+        </div>
+      </article>
+    </section>
+
+    <footer class="foot">
+      Built with HTML + CSS + JS • No libraries
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html> 
