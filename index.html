@@ -2,35 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hybrid Analog Digital Clock</title>
+  <title>Hybrid Clock</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="clock">
     <!-- Numbers -->
-    <div class="numbers">
-      <span style="--i:1">1</span><span style="--i:2">2</span><span style="--i:3">3</span>
-      <span style="--i:4">4</span><span style="--i:5">5</span><span style="--i:6">6</span>
-      <span style="--i:7">7</span><span style="--i:8">8</span><span style="--i:9">9</span>
-      <span style="--i:10">10</span><span style="--i:11">11</span><span style="--i:12">12</span>
-    </div>
+    <div class="number n1">1</div>
+    <div class="number n2">2</div>
+    <div class="number n3">3</div>
+    <div class="number n4">4</div>
+    <div class="number n5">5</div>
+    <div class="number n6">6</div>
+    <div class="number n7">7</div>
+    <div class="number n8">8</div>
+    <div class="number n9">9</div>
+    <div class="number n10">10</div>
+    <div class="number n11">11</div>
+    <div class="number n12">12</div>
 
     <!-- Hands -->
     <div class="hand hour" id="hour"></div>
     <div class="hand minute" id="minute"></div>
     <div class="hand second" id="second"></div>
 
-    <!-- Digital embedded -->
+    <!-- Digital -->
     <div class="digital">
       <div id="time">00:00</div>
       <div id="ampm">AM</div>
     </div>
 
-    <!-- Center dot -->
     <div class="center"></div>
   </div>
 
   <script src="script.js"></script>
 </body>
-</html> 
+</html>
